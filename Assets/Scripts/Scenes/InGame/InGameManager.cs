@@ -4,6 +4,9 @@ using UnityEngine;
 using Scenes.InGame.Ball;
 using Scenes.InGame.Stick;
 using TMPro;
+using System;
+using UniRx;
+using UniRx.Triggers;
 
 namespace Scenes.InGame.Manager
 {
@@ -15,11 +18,21 @@ namespace Scenes.InGame.Manager
         public static InGameManager Instance;
         private int _score = 0;//スコア
         private int _blockSize = 0;//blockの数
-        [SerializeField,Tooltip("スコアを表示するUI")]
+        [SerializeField, Tooltip("スコアを表示するUI")]
         TextMeshProUGUI _socreText;
+
+        private Subject<Unit> Pause = new Subject<Unit>();
+        public IObservable<Unit> OnPause => Pause;
+        private Subject<Unit> Restart = new Subject<Unit>();
+        public IObservable<Unit> OnRestart => Restart;
+
+        private Subject<Unit> Spawn = new Subject<Unit>();
+        public IObservable<Unit> OnSpawn => Spawn;
+
+
         private void Awake()
         {
-            if(Instance == null)
+            if (Instance == null)
             {
                 Instance = this;
             }
@@ -34,14 +47,15 @@ namespace Scenes.InGame.Manager
             StartCoroutine(BallSpawn());
         }
 
-       
+
         IEnumerator BallSpawn()
         {
             yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Space));
-            _ballSpawner.Spawn();
+            Spawn.OnNext(default);
         }
 
-        public void GameOver()
+
+    public void GameOver()
         {
             _ballStatus = FindObjectOfType<BallStatus>();
             _stickStatus = FindObjectOfType<StickStatus>();
@@ -52,15 +66,25 @@ namespace Scenes.InGame.Manager
         {
             _blockSize = i;
         }
-        public void BlockDestroy()
+
+        public void GamePause()
+        {
+            Pause.OnNext(default);
+        }
+        public void GameRestart()
+        {
+            Restart.OnNext(default);
+        }
+    public void BlockDestroy()
         {
             _score += 100;
             _blockSize--;
             _socreText.text = $"SCORE:{_score}";
-            if(_blockSize <= 0)
+            if (_blockSize <= 0)
             {
                 GameOver();
             }
         }
     }
+
 }

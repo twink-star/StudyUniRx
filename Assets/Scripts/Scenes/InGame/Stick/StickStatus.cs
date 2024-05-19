@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UniRx;
 using UnityEngine;
 
 namespace Scenes.InGame.Stick
@@ -8,15 +9,25 @@ namespace Scenes.InGame.Stick
     {
         [Header("スティックの可変パラメータ")]
         [SerializeField, Tooltip("スティックが移動する速度")]
-        private float _moveSpeed;//スティックの移動速度を決めるパラメータです
+       // private float _moveSpeed;//スティックの移動速度を決めるパラメータです
 
-        public float MoveSpeed { get => _moveSpeed; }//他のスクリプトから_moveSpeedの値を参照したい場合はこの関数を使います
+        //public float MoveSpeed { get => _moveSpeed; }//他のスクリプトから_moveSpeedの値を参照したい場合はこの関数を使います
 
-        private bool _isMovable = true;//スティックが移動できるかどうかのパラメータです
-        public bool IsMovable { get => _isMovable; }//他のスクリプトから_isMovableの値を参照したい場合はこの関数を使います
+       public ReactiveProperty<float> MoveSpeed = new ReactiveProperty<float>(15);
+      // public float MoveSpeed { get => _moveSpeed; }
+
+
+       public BoolReactiveProperty IsMovable = new BoolReactiveProperty(true);
+       //private bool _isMovable = true;//スティックが移動できるかどうかのパラメータです
+
+       //public bool IsMovable { get => _isMovable; }//他のスクリプトから_isMovableの値を参照したい場合はこの関数を使います
         public void StopMove()
         {
-            _isMovable = false;
+            IsMovable.Value = false;
+            Debug.Log(IsMovable);
         }
+
+
+
     }
 }
